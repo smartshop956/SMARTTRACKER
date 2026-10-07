@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Track Order - Smart Deals</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f6f8;
+    color:#222;
+}
+
+/* HEADER */
+.header{
+    background:#fff;
+    border-bottom:1px solid #eee;
+    padding:20px 60px 18px 20px;
+    text-align:center;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:800;
+}
+
+.logo span{
+    color:#ff5a00;
+}
+
+.subtitle{
+    margin-top:5px;
+    color:#777;
+    font-size:13px;
+}
+
+/* MENU */
+.menu-btn{
+    position:fixed;
+    right:16px;
+    top:16px;
+    width:44px;
+    height:44px;
+    border:0;
+    border-radius:50%;
+    background:#111;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    cursor:pointer;
+    z-index:1001;
+}
+
+.menu-btn span{
+    width:20px;
+    height:2px;
+    background:#fff;
+    border-radius:5px;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    display:none;
+    z-index:999;
+}
+
+.overlay.active{
+    display:block;
+}
+
+.side-menu{
+    position:fixed;
+    top:0;
+    right:-310px;
+    width:290px;
+    height:100vh;
+    background:#fff;
+    z-index:1000;
+    padding:25px 20px;
+    transition:.3s;
+    overflow-y:auto;
+}
+
+.side-menu.active{
+    right:0;
+}
+
+.close-btn{
+    position:absolute;
+    right:18px;
+    top:18px;
+    width:35px;
+    height:35px;
+    border:0;
+    border-radius:50%;
+    background:#f1f1f1;
+    font-size:22px;
+    cursor:pointer;
+}
+
+.menu-title{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:25px;
+}
+
+.menu-link{
+    display:block;
+    text-decoration:none;
+    color:#222;
+    padding:14px 5px;
+    border-bottom:1px solid #eee;
+    font-size:15px;
+}
+
+.menu-link:hover{
+    color:#ff5a00;
+}
+
+.policy-title{
+    margin-top:22px;
+    margin-bottom:5px;
+    font-size:13px;
+    color:#888;
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+/* MAIN */
+.container{
+    max-width:680px;
+    margin:auto;
+    padding:25px 15px 50px;
+}
+
+.track-card{
+    background:#fff;
+    border-radius:18px;
+    padding:25px 20px;
+    box-shadow:0 5px 25px rgba(0,0,0,.07);
+}
+
+.track-heading{
+    text-align:center;
+    font-size:25px;
+    font-weight:800;
+}
+
+.track-description{
+    text-align:center;
+    color:#777;
+    font-size:14px;
+    line-height:1.5;
+    margin:8px 0 25px;
+}
+
+/* FORM */
+.form-group{
+    margin-bottom:16px;
+}
+
+.form-group label{
+    display:block;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+.form-group input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+}
+
+.form-group input:focus{
+    border-color:#ff5a00;
+}
+
+.track-btn{
+    width:100%;
+    border:0;
+    background:#111;
+    color:#fff;
+    padding:14px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.track-btn:hover{
+    background:#ff5a00;
+}
+
+.error-message{
+    display:none;
+    margin-top:15px;
+    padding:12px;
+    background:#fff0f0;
+    color:#c00000;
+    border-radius:9px;
+    text-align:center;
+    font-size:14px;
+}
+
+/* RESULT */
+.order-result{
+    display:none;
+    margin-top:25px;
+}
+
+.order-result.show{
+    display:block;
+}
+
+.order-header{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    border-bottom:1px solid #eee;
+    padding-bottom:18px;
+}
+
+.order-id{
+    font-size:18px;
+    font-weight:800;
+}
+
+.order-date{
+    font-size:12px;
+    color:#888;
+    margin-top:5px;
+}
+
+.status-badge{
+    height:max-content;
+    padding:7px 11px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.status-placed{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status-confirmed{
+    background:#e7f1ff;
+    color:#0759a5;
+}
+
+.status-packed{
+    background:#eee7ff;
+    color:#5b20a5;
+}
+
+.status-shipped{
+    background:#e5f7ff;
+    color:#00749b;
+}
+
+.status-out-for-delivery{
+    background:#e6f8ea;
+    color:#16712b;
+}
+
+.status-delivered{
+    background:#dff7e5;
+    color:#087525;
+}
+
+.status-cancelled{
+    background:#ffe5e5;
+    color:#c40000;
+}
+
+/* CURRENT STATUS */
+.current-status-box{
+    margin-top:18px;
+    padding:15px;
+    border-radius:12px;
+    background:#fff7f1;
+    border:1px solid #ffd9bf;
+}
+
+.current-status-label{
+    font-size:12px;
+    color:#888;
+    margin-bottom:4px;
+}
+
+.current-status-text{
+    font-size:18px;
+    font-weight:800;
+    color:#ff5a00;
+}
+
+.current-status-description{
+    margin-top:5px;
+    color:#666;
+    font-size:13px;
+}
+
+/* PRODUCTS */
+.products-title{
+    font-size:17px;
+    font-weight:800;
+    margin:23px 0 12px;
+}
+
+.product-card{
+    display:flex;
+    gap:13px;
+    padding:12px;
+    border:1px solid #eee;
+    border-radius:13px;
+    margin-bottom:12px;
+}
+
+.product-image{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:10px;
+    background:#f3f3f3;
+}
+
+.product-info{
+    flex:1;
+}
+
+.product-name{
+    font-size:15px;
+    font-weight:700;
+    line-height:1.4;
+}
+
+.product-id{
+    margin-top:4px;
+    color:#888;
+    font-size:12px;
+}
+
+.product-price{
+    margin-top:8px;
+    font-weight:700;
+}
+
+.product-quantity{
+    margin-top:3px;
+    color:#777;
+    font-size:12px;
+}
+
+/* SUMMARY */
+.summary{
+    margin-top:18px;
+    padding:15px;
+    border-radius:12px;
+    background:#f8f8f8;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 0;
+    font-size:14px;
+}
+
+.summary-row.total{
+    border-top:1px solid #ddd;
+    margin-top:5px;
+    padding-top:12px;
+    font-size:17px;
+    font-weight:800;
+}
+
+/* CUSTOMER */
+.details-box{
+    margin-top:22px;
+}
+
+.details-title{
+    font-size:17px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.detail-row{
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+.detail-label{
+    color:#888;
+    font-size:12px;
+    margin-bottom:3px;
+}
+
+/* TRACKING */
+.tracking-title{
+    font-size:18px;
+    font-weight:800;
+    margin:27px 0 20px;
+}
+
+.timeline{
+    position:relative;
+    padding-left:38px;
+}
+
+.timeline-line{
+    position:absolute;
+    left:10px;
+    top:10px;
+    bottom:10px;
+    width:3px;
+    background:#e1e1e1;
+}
+
+.timeline-progress{
+    position:absolute;
+    left:10px;
+    top:10px;
+    width:3px;
+    background:#111;
+    z-index:1;
+}
+
+.timeline-item{
+    position:relative;
+    padding-bottom:28px;
+    min-height:65px;
+}
+
+.timeline-item:last-child{
+    padding-bottom:0;
+}
+
+.timeline-dot{
+    position:absolute;
+    left:-37px;
+    top:0;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#ddd;
+    border:4px solid #fff;
+    box-shadow:0 0 0 1px #ddd;
+    z-index:3;
+}
+
+.timeline-item.completed .timeline-dot{
+    background:#111;
+    box-shadow:0 0 0 1px #111;
+}
+
+.timeline-item.current .timeline-dot{
+    background:#ff5a00;
+    box-shadow:
+        0 0 0 4px rgba(255,90,0,.16);
+}
+
+.timeline-title{
+    font-size:14px;
+    font-weight:800;
+}
+
+.timeline-item.current .timeline-title{
+    color:#ff5a00;
+}
+
+.timeline-description{
+    font-size:12px;
+    color:#888;
+    margin-top:4px;
+    line-height:1.4;
+}
+
+.current-label{
+    display:inline-block;
+    margin-top:7px;
+    padding:4px 8px;
+    border-radius:20px;
+    background:#fff0e5;
+    color:#ff5a00;
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+}
+
+/* CANCELLED */
+.cancelled-box{
+    margin-top:20px;
+    padding:15px;
+    border-radius:12px;
+    background:#fff0f0;
+    border:1px solid #ffd0d0;
+    color:#b40000;
+}
+
+.cancelled-title{
+    font-weight:800;
+    margin-bottom:5px;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    padding:25px 15px;
+    color:#888;
+    font-size:12px;
+}
+
+@media(max-width:500px){
+
+    .track-card{
+        padding:20px 15px;
+    }
+
+    .track-heading{
+        font-size:22px;
+    }
+
+    .product-image{
+        width:75px;
+        height:75px;
+    }
+
+    .header{
+        padding-right:70px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU BUTTON -->
+
+<button class="menu-btn" onclick="openMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- SIDE MENU -->
+
+<div class="side-menu" id="sideMenu">
+
+    <button class="close-btn" onclick="closeMenu()">×</button>
+
+    <div class="menu-title">
+        Smart Deals
+    </div>
+
+    <a href="about.html" class="menu-link">
+        About Us
+    </a>
+
+    <a href="contact.html" class="menu-link">
+        Contact Us
+    </a>
+
+    <div class="policy-title">
+        Policies
+    </div>
+
+    <a href="refund-policy.html" class="menu-link">
+        Refund Policy
+    </a>
+
+    <a href="privacy-policy.html" class="menu-link">
+        Privacy Policy
+    </a>
+
+    <a href="terms.html" class="menu-link">
+        Terms & Conditions
+    </a>
+
+    <a href="shipping-policy.html" class="menu-link">
+        Shipping / Delivery Policy
+    </a>
+
+    <a href="cancellation-policy.html" class="menu-link">
+        Cancellation Policy
+    </a>
+
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <div class="logo">
+        SMART <span>DEALS</span>
+    </div>
+
+    <div class="subtitle">
+        Track your order
+    </div>
+
+</header>
+
+
+<!-- MAIN -->
+
+<main class="container">
+
+<section class="track-card">
+
+    <h1 class="track-heading">
+        Track Your Order
+    </h1>
+
+    <p class="track-description">
+        Enter your Order ID and the mobile number used while placing your order.
+    </p>
+
+
+    <!-- ORDER ID -->
+
+    <div class="form-group">
+
+        <label>
+            Order ID
+        </label>
+
+        <input
+            type="text"
+            id="orderId"
+            placeholder="Example: SD1001"
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <!-- MOBILE -->
+
+    <div class="form-group">
+
+        <label>
+            Mobile Number
+        </label>
+
+        <input
+            type="tel"
+            id="mobile"
+            placeholder="Enter mobile number"
+            maxlength="10"
+            inputmode="numeric"
+        >
+
+    </div>
+
+
+    <button class="track-btn" onclick="trackOrder()">
+        Track Order
+    </button>
+
+
+    <div class="error-message" id="errorMessage">
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div class="order-result" id="orderResult">
+
+        <div class="order-header">
+
+            <div>
+
+                <div class="order-id" id="displayOrderId">
+                </div>
+
+                <div class="order-date" id="displayOrderDate">
+                </div>
+
+            </div>
+
+            <div class="status-badge" id="displayStatus">
+            </div>
+
+        </div>
+
+
+        <!-- CURRENT STATUS -->
+
+        <div class="current-status-box">
+
+            <div class="current-status-label">
+                CURRENT ORDER STATUS
+            </div>
+
+            <div class="current-status-text" id="currentStatusText">
+            </div>
+
+            <div class="current-status-description" id="currentStatusDescription">
+            </div>
+
+        </div>
+
+
+        <!-- PRODUCTS -->
+
+        <div class="products-title">
+            Your Product
+        </div>
+
+        <div id="productsContainer">
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div class="summary">
+
+            <div class="summary-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong id="subtotal">
+                    ₹0
+                </strong>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>
+                    Delivery
+                </span>
+
+                <strong id="deliveryCharge">
+                    ₹0
+                </strong>
+
+            </div>
+
+            <div class="summary-row total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="totalPrice">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+
+        <div class="details-box">
+
+            <div class="details-title">
+                Delivery Details
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Name</div>
+                <div id="customerName"></div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Mobile</div>
+                <div id="customerMobile"></div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Address</div>
+                <div id="customerAddress"></div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">District</div>
+                <div id="customerDistrict"></div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">State</div>
+                <div id="customerState"></div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">PIN Code</div>
+                <div id="customerPin"></div>
+            </div>
+
+        </div>
+
+
+        <!-- ORDER PROGRESS -->
+
+        <div class="tracking-title">
+            Order Progress
+        </div>
+
+        <div class="timeline" id="timeline">
+        </div>
+
+
+        <!-- CANCELLED -->
+
+        <div
+            class="cancelled-box"
+            id="cancelledBox"
+            style="display:none;"
+        >
+
+            <div class="cancelled-title">
+                Order Cancelled
+            </div>
+
+            <div id="cancelledReason">
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+    © 2026 Smart Deals. All Rights Reserved.
+</footer>
+
+
+<script>
+
+/* ============================================================
+   PRODUCT DATABASE
+
+   IMPORTANT:
+
+   यहां अपने Smart Deals के products रखें।
+
+   Product ID हर product की unique ID होनी चाहिए।
+
+   Order में बाद में सिर्फ यही Product ID इस्तेमाल होगी।
+============================================================ */
+
+const products = {
+
+    "P1001": {
+
+        name: "Men's Casual Shirt",
+
+        image: "https://via.placeholder.com/500x500?text=Shirt",
+
+        price: 499
+
+    },
+
+
+    "P1002": {
+
+        name: "Women's Kurti",
+
+        image: "https://via.placeholder.com/500x500?text=Kurti",
+
+        price: 699
+
+    },
+
+
+    "P1003": {
+
+        name: "Fashion Dupatta",
+
+        image: "https://via.placeholder.com/500x500?text=Dupatta",
+
+        price: 299
+
+    },
+
+
+    "P1004": {
+
+        name: "Smart Watch",
+
+        image: "https://via.placeholder.com/500x500?text=Watch",
+
+        price: 999
+
+    }
+
+};
+
+
+/* ============================================================
+   ORDER DATABASE
+
+   यहां नया order add करें।
+
+   IMPORTANT:
+
+   Product की पूरी information यहां नहीं लिखनी है।
+
+   सिर्फ productId लिखना है।
+
+   STATUS सिर्फ इसी एक जगह बदलना है।
+============================================================ */
+
+const orders = [
+
+    {
+
+        orderId: "SD1001",
+
+        mobile: "9876543210",
+
+        orderDate: "07 October 2026",
+
+        /* सिर्फ यही बदलकर status update करें */
+
+        status: "Shipped",
+
+        products: [
+
+            {
+                productId: "P1001",
+                quantity: 1
+            }
+
+        ],
+
+        deliveryCharge: 0,
+
+        customer: {
+
+            name: "Rahul Kumar",
+
+            mobile: "9876543210",
+
+            address: "Main Road",
+
+            district: "Arrah",
+
+            state: "Bihar",
+
+            pin: "802301"
+
+        },
+
+        cancelledReason: ""
+
+    },
+
+
+    {
+
+        orderId: "SD1002",
+
+        mobile: "9123456780",
+
+        orderDate: "06 October 2026",
+
+        status: "Out for Delivery",
+
+        products: [
+
+            {
+                productId: "P1002",
+                quantity: 1
+            },
+
+            {
+                productId: "P1003",
+                quantity: 1
+            }
+
+        ],
+
+        deliveryCharge: 0,
+
+        customer: {
+
+            name: "Priya Singh",
+
+            mobile: "9123456780",
+
+            address: "Station Road",
+
+            district: "Patna",
+
+            state: "Bihar",
+
+            pin: "800001"
+
+        },
+
+        cancelledReason: ""
+
+    },
+
+
+    {
+
+        orderId: "SD1003",
+
+        mobile: "9000000000",
+
+        orderDate: "05 October 2026",
+
+        status: "Cancelled",
+
+        products: [
+
+            {
+                productId: "P1004",
+                quantity: 1
+            }
+
+        ],
+
+        deliveryCharge: 0,
+
+        customer: {
+
+            name: "Amit Kumar",
+
+            mobile: "9000000000",
+
+            address: "College Road",
+
+            district: "Gaya",
+
+            state: "Bihar",
+
+            pin: "823001"
+
+        },
+
+        cancelledReason:
+            "Customer requested cancellation."
+
+    }
+
+];
+
+
+/* ============================================================
+   ORDER STATUS STEPS
+
+   इसे normally बदलने की जरूरत नहीं है।
+============================================================ */
+
+const statusSteps = [
+
+    {
+        key: "Placed",
+        title: "Order Placed",
+        description:
+            "Your order has been successfully placed."
+    },
+
+    {
+        key: "Confirmed",
+        title: "Order Confirmed",
+        description:
+            "Your order has been confirmed."
+    },
+
+    {
+        key: "Packed",
+        title: "Order Packed",
+        description:
+            "Your product has been packed."
+    },
+
+    {
+        key: "Shipped",
+        title: "Order Shipped",
+        description:
+            "Your order has been handed over to the delivery partner."
+    },
+
+    {
+        key: "Out for Delivery",
+        title: "Out for Delivery",
+        description:
+            "Your order is on the way to you."
+    },
+
+    {
+        key: "Delivered",
+        title: "Delivered",
+        description:
+            "Your order has been delivered successfully."
+    }
+
+];
+
+
+/* ============================================================
+   MENU
+============================================================ */
+
+function openMenu(){
+
+    document
+        .getElementById("sideMenu")
+        .classList.add("active");
+
+    document
+        .getElementById("overlay")
+        .classList.add("active");
+}
+
+
+function closeMenu(){
+
+    document
+        .getElementById("sideMenu")
+        .classList.remove("active");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("active");
+}
+
+
+/* ============================================================
+   TRACK ORDER
+============================================================ */
+
+function trackOrder(){
+
+    const orderId =
+        document
+        .getElementById("orderId")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const mobile =
+        document
+        .getElementById("mobile")
+        .value
+        .trim();
+
+
+    const error =
+        document.getElementById("errorMessage");
+
+    const result =
+        document.getElementById("orderResult");
+
+
+    error.style.display = "none";
+
+    result.classList.remove("show");
+
+
+    if(!orderId || !mobile){
+
+        error.innerText =
+            "Please enter Order ID and mobile number.";
+
+        error.style.display = "block";
+
+        return;
+    }
+
+
+    /*
+       Order ID + Mobile दोनों match होने चाहिए।
+    */
+
+    const order =
+        orders.find(item =>
+
+            item.orderId.toLowerCase() === orderId &&
+
+            item.mobile === mobile
+
+        );
+
+
+    if(!order){
+
+        error.innerText =
+            "Order not found. Please check your Order ID and mobile number.";
+
+        error.style.display = "block";
+
+        return;
+    }
+
+
+    displayOrder(order);
+}
+
+
+/* ============================================================
+   DISPLAY ORDER
+============================================================ */
+
+function displayOrder(order){
+
+    document
+        .getElementById("orderResult")
+        .classList.add("show");
+
+
+    document
+        .getElementById("displayOrderId")
+        .innerText =
+        "Order #" + order.orderId;
+
+
+    document
+        .getElementById("displayOrderDate")
+        .innerText =
+        "Placed on " + order.orderDate;
+
+
+    /* STATUS BADGE */
+
+    const badge =
+        document.getElementById("displayStatus");
+
+    badge.innerText =
+        order.status;
+
+    badge.className =
+        "status-badge " +
+        getStatusClass(order.status);
+
+
+    /* CURRENT STATUS */
+
+    const currentStep =
+        statusSteps.find(
+            step => step.key === order.status
+        );
+
+
+    document
+        .getElementById("currentStatusText")
+        .innerText =
+        order.status;
+
+
+    document
+        .getElementById("currentStatusDescription")
+        .innerText =
+        currentStep
+        ? currentStep.description
+        : "Your order status has been updated.";
+
+
+    /* PRODUCTS */
+
+    displayProducts(order);
+
+
+    /* PRICE */
+
+    let subtotal = 0;
+
+
+    order.products.forEach(item => {
+
+        const product =
+            products[item.productId];
+
+        if(product){
+
+            subtotal +=
+                Number(product.price) *
+                Number(item.quantity);
+
+        }
+
+    });
+
+
+    const delivery =
+        Number(order.deliveryCharge || 0);
+
+    const total =
+        subtotal + delivery;
+
+
+    document
+        .getElementById("subtotal")
+        .innerText =
+        formatPrice(subtotal);
+
+
+    document
+        .getElementById("deliveryCharge")
+        .innerText =
+        formatPrice(delivery);
+
+
+    document
+        .getElementById("totalPrice")
+        .innerText =
+        formatPrice(total);
+
+
+    /* CUSTOMER */
+
+    document
+        .getElementById("customerName")
+        .innerText =
+        order.customer.name;
+
+
+    document
+        .getElementById("customerMobile")
+        .innerText =
+        order.customer.mobile;
+
+
+    document
+        .getElementById("customerAddress")
+        .innerText =
+        order.customer.address;
+
+
+    document
+        .getElementById("customerDistrict")
+        .innerText =
+        order.customer.district;
+
+
+    document
+        .getElementById("customerState")
+        .innerText =
+        order.customer.state;
+
+
+    document
+        .getElementById("customerPin")
+        .innerText =
+        order.customer.pin;
+
+
+    /* TIMELINE */
+
+    displayTracking(order);
+
+
+    /* CANCELLED */
+
+    const cancelled =
+        document.getElementById("cancelledBox");
+
+
+    if(order.status === "Cancelled"){
+
+        cancelled.style.display = "block";
+
+        document
+            .getElementById("cancelledReason")
+            .innerText =
+            order.cancelledReason ||
+            "This order has been cancelled.";
+
+    }else{
+
+        cancelled.style.display = "none";
+
+    }
+
+}
+
+
+/* ============================================================
+   DISPLAY PRODUCTS FROM PRODUCT DATABASE
+============================================================ */
+
+function displayProducts(order){
+
+    const container =
+        document.getElementById("productsContainer");
+
+    container.innerHTML = "";
+
+
+    order.products.forEach(item => {
+
+        /*
+           Product ID से product database में
+           product खोजा जा रहा है।
+        */
+
+        const product =
+            products[item.productId];
+
+
+        if(!product){
+
+            const errorCard =
+                document.createElement("div");
+
+            errorCard.className =
+                "product-card";
+
+            errorCard.innerHTML = `
+                <div class="product-info">
+                    Product ID ${escapeHtml(item.productId)}
+                    not found.
+                </div>
+            `;
+
+            container.appendChild(errorCard);
+
+            return;
+        }
+
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "product-card";
+
+
+        card.innerHTML = `
+
+            <img
+                class="product-image"
+                src="${product.image}"
+                alt="${escapeHtml(product.name)}"
+                onerror="
+                    this.src='https://via.placeholder.com/500x500?text=Product'
+                "
+            >
+
+            <div class="product-info">
+
+                <div class="product-name">
+                    ${escapeHtml(product.name)}
+                </div>
+
+                <div class="product-id">
+                    Product ID: ${escapeHtml(item.productId)}
+                </div>
+
+                <div class="product-price">
+                    ${formatPrice(product.price)}
+                </div>
+
+                <div class="product-quantity">
+                    Quantity: ${item.quantity}
+                </div>
+
+            </div>
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* ============================================================
+   TRACKING TIMELINE
+============================================================ */
+
+function displayTracking(order){
+
+    const timeline =
+        document.getElementById("timeline");
+
+    timeline.innerHTML = "";
+
+
+    /* CANCELLED */
+
+    if(order.status === "Cancelled"){
+
+        timeline.innerHTML = `
+
+            <div class="timeline">
+
+                <div class="timeline-item current">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-title">
+                        Order Cancelled
+                    </div>
+
+                    <div class="timeline-description">
+                        This order has been cancelled.
+                    </div>
+
+                    <div class="current-label">
+                        Current Status
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const currentIndex =
+        statusSteps.findIndex(
+            step => step.key === order.status
+        );
+
+
+    /* BASE LINE */
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        "timeline-line";
+
+    timeline.appendChild(line);
+
+
+    /* PROGRESS LINE */
+
+    const progress =
+        document.createElement("div");
+
+    progress.className =
+        "timeline-progress";
+
+
+    /*
+       Progress line current dot तक जाएगी।
+    */
+
+    if(currentIndex >= 0){
+
+        const percent =
+            currentIndex /
+            (statusSteps.length - 1);
+
+        progress.style.height =
+            `calc(${percent * 100}% - 0px)`;
+
+    }
+
+
+    timeline.appendChild(progress);
+
+
+    /* STEPS */
+
+    statusSteps.forEach((step,index) => {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "timeline-item";
+
+
+        if(index < currentIndex){
+
+            item.classList.add("completed");
+
+        }
+
+
+        if(index === currentIndex){
+
+            item.classList.add("current");
+
+        }
+
+
+        let currentLabel = "";
+
+
+        if(index === currentIndex){
+
+            currentLabel = `
+                <div class="current-label">
+                    You are here • Current Status
+                </div>
+            `;
+
+        }
+
+
+        item.innerHTML = `
+
+            <div class="timeline-dot"></div>
+
+            <div class="timeline-title">
+                ${step.title}
+            </div>
+
+            <div class="timeline-description">
+                ${step.description}
+            </div>
+
+            ${currentLabel}
+
+        `;
+
+
+        timeline.appendChild(item);
+
+    });
+
+}
+
+
+/* ============================================================
+   STATUS CLASS
+============================================================ */
+
+function getStatusClass(status){
+
+    return "status-" +
+        status
+        .toLowerCase()
+        .replace(/\s+/g,"-");
+
+}
+
+
+/* ============================================================
+   PRICE
+============================================================ */
+
+function formatPrice(price){
+
+    return "₹" +
+        Number(price).toLocaleString("en-IN");
+
+}
+
+
+/* ============================================================
+   SECURITY / HTML ESCAPE
+============================================================ */
+
+function escapeHtml(value){
+
+    return String(value)
+
+        .replace(/&/g,"&amp;")
+
+        .replace(/</g,"&lt;")
+
+        .replace(/>/g,"&gt;")
+
+        .replace(/"/g,"&quot;")
+
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* ============================================================
+   ENTER KEY
+============================================================ */
+
+document
+    .getElementById("orderId")
+    .addEventListener("keydown",function(event){
+
+        if(event.key === "Enter"){
+            trackOrder();
+        }
+
+    });
+
+
+document
+    .getElementById("mobile")
+    .addEventListener("keydown",function(event){
+
+        if(event.key === "Enter"){
+            trackOrder();
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
